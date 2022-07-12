@@ -1,20 +1,83 @@
 <template>
   <div class="container">
-    <Header title="Task Tracker" />
+    <div v-show ="showAddTask">
+    <AddTask @add-task="addTask" />
+    </div>
+    <Header @toggle-task="onToggle" title="Task Tracker" :showAddTask="showAddTask"/>
+    <Tasks @delete-task="deleteTask" @toggle-reminder="toggleReminder"
+    :tasks="tasks" />
   </div>
       
 </template>
 
 
 <script>
-import  Header from './components/Header.vue'
+import Header from './components/Header.vue'
+import Tasks from './components/Tasks.vue'
+import AddTask from './components/AddTask.vue'
 
 
 export default {
   name: 'App',
   components: {
     Header,
+    Tasks,
+    AddTask,
   },
+  data(){
+    return {
+      tasks: [],
+      showAddTask: false
+    } 
+  },
+  created() {
+    this.tasks =  [
+      {
+        id:1,
+        text: 'Doctors Appointment',
+        day: 'March 1st at 2:30pm',
+        reminder: true,
+      },
+      {
+        id: 2,
+        text: 'Meeting at School',
+        day: 'March 3rd at 1:30pm',
+        reminder: true,
+      },
+      {
+        id: 3,
+        text:'Food shopping',
+        day: 'March 3rd at 11:00am',
+        reminder: false,
+      }
+    ]
+     
+  },
+  methods: {
+    deleteTask(id){
+      console.log('task', id)
+      if(confirm('Are you there')){
+          this.tasks = this.tasks.filter( task =>  task.id !== id )
+          console.log(this.tasks);
+      }
+      
+    },
+    toggleReminder(id) {
+      console.log(id);
+      this.tasks = this.tasks.map( task => task.id === id 
+        ? {...task, reminder: !task.reminder } : task );
+     
+    },
+
+    addTask(task) {
+      this.tasks = [...this.tasks, task]
+
+    },
+
+    onToggle(){
+      this.showAddTask = !this.showAddTask
+    },
+    },
 }
 </script>
 
