@@ -1,5 +1,10 @@
 # vue-taskapp
 
+A Simple Task Management Application built using VueJS SFC's and Options Api
+
+# Tooling and Project Scaffold
+Vite and VueJS
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
