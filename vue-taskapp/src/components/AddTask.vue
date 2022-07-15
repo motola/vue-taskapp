@@ -19,7 +19,7 @@
     </div>
 
     <input type="submit" value="Save Task" class="btn btn-block" />
-  </form>
+  </form> 
 </template>
 
 

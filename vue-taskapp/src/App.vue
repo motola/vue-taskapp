@@ -6,6 +6,7 @@
     <Header @toggle-task="onToggle" title="Task Tracker" :showAddTask="showAddTask"/>
     <Tasks @delete-task="deleteTask" @toggle-reminder="toggleReminder"
     :tasks="tasks" />
+   <Footer /> 
   </div>
       
 </template>
@@ -15,6 +16,7 @@
 import Header from './components/Header.vue'
 import Tasks from './components/Tasks.vue'
 import AddTask from './components/AddTask.vue'
+import Footer from './components/Footer.vue';
 
 
 export default {
@@ -23,6 +25,7 @@ export default {
     Header,
     Tasks,
     AddTask,
+    Footer,
   },
   data(){
     return {
@@ -30,57 +33,89 @@ export default {
       showAddTask: false
     } 
   },
-  created() {
-    this.tasks =  [
-      {
-        id:1,
-        text: 'Doctors Appointment',
-        day: 'March 1st at 2:30pm',
-        reminder: true,
-      },
-      {
-        id: 2,
-        text: 'Meeting at School',
-        day: 'March 3rd at 1:30pm',
-        reminder: true,
-      },
-      {
-        id: 3,
-        text:'Food shopping',
-        day: 'March 3rd at 11:00am',
-        reminder: false,
-      }
-    ]
-     
-  },
+  
   methods: {
-    deleteTask(id){
-      console.log('task', id)
-      if(confirm('Are you there')){
-          this.tasks = this.tasks.filter( task =>  task.id !== id )
-          console.log(this.tasks);
-      }
-      
-    },
-    toggleReminder(id) {
+    async deleteTask(id){
+      // console.log('task', id)
+      // if(confirm('Are you there')){
+      //     const delTask = this.tasks.findIndex( task =>  task.id === id );
+      //     console.log('item to delete :', delTask);
+      //    this.tasks.splice(delTask, 1);
+      //     console.log(this.tasks);
+      //     return this.tasks
+         
+      // }
+
+      const res = await fetch(`api/tasks/${id}`, {
+        method: 'DELETE',
+      })
+       const delTask = this.tasks.findIndex( task =>  task.id === id );
+       res.status === 200 ? (this.tasks.splice(delTask, 1)) : 'Error Deleting task'
+       },
+
+       // on double tap pop a green button to highlight task
+    async toggleReminder(id) {
       console.log(id);
-      this.tasks = this.tasks.map( task => task.id === id 
-        ? {...task, reminder: !task.reminder } : task );
-     
+      const taskToToggle = await this.fetchTask(id)
+      const updTask = {...taskToToggle, reminder: !taskToToggle.reminder}
+
+      
+      const res = await fetch(`api/tasks/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-type': 'application/json',
+        },
+        body: JSON.stringify(updTask)
+      })
+
+      const data = await res.json()
+      this.tasks = this.tasks.map( task => 
+       task.id === id ? {...task, reminder: data.reminder}
+       : task )
     },
 
-    addTask(task) {
-      this.tasks = [...this.tasks, task]
+    // Add new task when user clicks input fields and click save button
+
+    async addTask(task) {
+      const res = await fetch('api/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+        },
+        body: JSON.stringify(task)
+      });
+
+
+      const data = await res.json()
+      this.tasks = [...this.tasks, data]
 
     },
-
+    // Toogle the header button to close or add task when menu pops to add new task
     onToggle(){
       this.showAddTask = !this.showAddTask
     },
+    async fetchTasks() {
+      const res = await fetch('api/tasks')
+
+      const data =  await res.json();
+  
+      return data
     },
+    async fetchTask(id) {
+      const res = await fetch(`api/tasks/${id} `)
+
+      const data =  await res.json();
+  
+      return data
+    },
+    },
+    async created() {
+    this.tasks = await this.fetchTasks();
+     
+  },
 }
 </script>
-
+ 
 
 
 
